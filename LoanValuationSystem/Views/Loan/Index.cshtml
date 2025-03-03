@@ -1,0 +1,88 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Loan Valuation Summary";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center">Loan Valuation Summary</h2>
+
+    <!-- Loan Summary Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total Loans</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.TotalLoans</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Avg Interest Rate</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.AvgInterestRate.ToString("0.00")%</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Total Outstanding Balance</div>
+                <div class="card-body">
+                    <h5 class="card-title">$@Model.TotalOutstandingBalance.ToString("N2")</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Delinquency Rate</div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.DelinquencyRate.ToString("0.00")%</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart for Loan Balances -->
+    <div class="row mt-4">
+        <div class="col">
+            <canvas id="loanBalanceChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="row mt-4">
+        <div class="col text-center">
+            <a href="/Loan/GenerateExcelReport" class="btn btn-primary">📊 Download Excel Report</a>
+            <a href="https://github.com/your-repo-url" target="_blank" class="btn btn-dark">🔗 View GitHub Repo</a>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('loanBalanceChart').getContext('2d');
+        var loanBalanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.BalanceDates)), // Dates
+                datasets: [{
+                    label: 'Loan Balance Over Time',
+                    data: @Html.Raw(Json.Serialize(Model.Balances)), // Balances
+                    borderColor: 'blue',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Balance ($)' } }
+                }
+            }
+        });
+    });
+</script>
